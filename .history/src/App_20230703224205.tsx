@@ -1,9 +1,8 @@
 import { FC, useEffect, useState } from 'react';
 import './App.css';
 import Auth from './components/Auth';
-import { db, auth, storage } from './config/firebase';
+import { db } from './config/firebase';
 import { getDocs, collection, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes } from 'firebase/storage';
 
 interface IMovie {
   id: string;
@@ -20,9 +19,6 @@ const App: FC = () => {
   const [releaseDate, setReleaseDate] = useState<number>(0);
   const [recievedAnOscar, setRecievedAnOscar] = useState<boolean>(true);
   const [updatedTitle, setUpdatedTitle] = useState<string>('');
-
-  //fileupload
-  const [fileUpload, setFileUpload] = useState<any>(null);
 
   const moviesCollectionRef = collection(db, 'movies');
 
@@ -60,12 +56,7 @@ const App: FC = () => {
 
   const submitMovie = async () => {
     try {
-      await addDoc(moviesCollectionRef, {
-        title,
-        releaseDate,
-        recievedAnOscar,
-        userId: auth.currentUser?.uid,
-      });
+      await addDoc(moviesCollectionRef, { title, releaseDate, recievedAnOscar });
       getMovieList();
     } catch (err) {
       console.log(err);
@@ -87,19 +78,6 @@ const App: FC = () => {
     try {
       await updateDoc(movieDoc, { title });
       getMovieList();
-      setUpdatedTitle('');
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const uploadFile = async () => {
-    if (!fileUpload) {
-      return;
-    }
-    const filesFolderRef = ref(storage, `projectFiles/${fileUpload.name}`);
-    try {
-      await uploadBytes(filesFolderRef, fileUpload);
     } catch (err) {
       console.log(err);
     }
@@ -135,15 +113,8 @@ const App: FC = () => {
             update title
             <input value={updatedTitle} onChange={handleUpdateTitle} placeholder="title..." />
           </label>
-          <button onClick={() => updateMovie(movie.id, updatedTitle)}>Update title</button>
         </h3>
       ))}
-      <hr />
-      <div>
-        <input type="file" onChange={(e: any) => setFileUpload(e.target.files[0])} />
-        <button onClick={uploadFile}>Upload File</button>
-      </div>
-      <h1>{storage.app.options.storageBucket}</h1>
     </div>
   );
 };

@@ -1,0 +1,76 @@
+import { FC, useEffect, useState } from 'react';
+import './App.css';
+import Auth from './components/Auth';
+import { db } from './config/firebase';
+import { getDocs, collection } from 'firebase/firestore';
+
+interface IMovie {
+  id: string;
+  title: string;
+  recievedAnOscar: boolean;
+  releaseDate: number;
+}
+
+const App: FC = () => {
+  const [movieList, setMovieList] = useState<IMovie[]>([]);
+
+  //new Movie State
+  const [title, setTitle] = useState<string>('');
+  const [releaseDate, setReleaseDate] = useState<number>(0);
+  const [recievedAnOscar, setRecievedAnOscar] = useState<boolean>(false);
+
+  const moviesCollectionRef = collection(db, 'movies');
+
+  useEffect(() => {
+    const getMovieList = async () => {
+      //read the data
+      //set the movie list
+      try {
+        const data = await getDocs(moviesCollectionRef);
+        const filteredData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        //@ts-ignore
+        setMovieList(filteredData);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getMovieList();
+  }, []);
+
+  const handleReleaseDate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setReleaseDate(+e.target.value);
+  };
+
+  return (
+    <div className="App">
+      Firebase
+      <Auth />
+      <hr />
+      <div>
+        <input placeholder="title..." value={title} onChange={(e) => setTitle(e.target.value)} />
+        <input
+          type="number"
+          placeholder="releaseDate..."
+          value={releaseDate}
+          onChange={handleReleaseDate}
+        />
+        <label>
+          recievedAnOscar
+          <input
+            type="checkbox"
+            value={recievedAnOscar}
+            onChange={() => setRecievedAnOscar(!recievedAnOscar)}
+          />
+        </label>
+        <button>add film</button>
+      </div>
+      {movieList.map((movie) => (
+        <h3>
+          {movie.title}, {movie.releaseDate}
+        </h3>
+      ))}
+    </div>
+  );
+};
+
+export default App;

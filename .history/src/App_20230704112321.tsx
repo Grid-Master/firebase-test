@@ -3,7 +3,7 @@ import './App.css';
 import Auth from './components/Auth';
 import { db, auth, storage } from './config/firebase';
 import { getDocs, collection, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes } from 'firebase/storage';
+import { ref } from 'firebase/storage';
 
 interface IMovie {
   id: string;
@@ -93,16 +93,11 @@ const App: FC = () => {
     }
   };
 
-  const uploadFile = async () => {
+  const uploadFile = () => {
     if (!fileUpload) {
       return;
     }
     const filesFolderRef = ref(storage, `projectFiles/${fileUpload.name}`);
-    try {
-      await uploadBytes(filesFolderRef, fileUpload);
-    } catch (err) {
-      console.log(err);
-    }
   };
 
   return (
@@ -143,7 +138,6 @@ const App: FC = () => {
         <input type="file" onChange={(e: any) => setFileUpload(e.target.files[0])} />
         <button onClick={uploadFile}>Upload File</button>
       </div>
-      <h1>{storage.app.options.storageBucket}</h1>
     </div>
   );
 };

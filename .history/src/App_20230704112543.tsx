@@ -143,7 +143,6 @@ const App: FC = () => {
         <input type="file" onChange={(e: any) => setFileUpload(e.target.files[0])} />
         <button onClick={uploadFile}>Upload File</button>
       </div>
-      <h1>{storage.app.options.storageBucket}</h1>
     </div>
   );
 };

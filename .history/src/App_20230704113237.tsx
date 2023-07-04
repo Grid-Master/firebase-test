@@ -144,6 +144,7 @@ const App: FC = () => {
         <button onClick={uploadFile}>Upload File</button>
       </div>
       <h1>{storage.app.options.storageBucket}</h1>
+      <img src={`gs://fir-1-19d7b.appspot.com/projectFiles/avatar2big.png`} />
     </div>
   );
 };

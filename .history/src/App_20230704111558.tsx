@@ -3,7 +3,6 @@ import './App.css';
 import Auth from './components/Auth';
 import { db, auth, storage } from './config/firebase';
 import { getDocs, collection, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes } from 'firebase/storage';
 
 interface IMovie {
   id: string;
@@ -22,7 +21,7 @@ const App: FC = () => {
   const [updatedTitle, setUpdatedTitle] = useState<string>('');
 
   //fileupload
-  const [fileUpload, setFileUpload] = useState<any>(null);
+  const [file, setFile] = useState(null);
 
   const moviesCollectionRef = collection(db, 'movies');
 
@@ -93,18 +92,6 @@ const App: FC = () => {
     }
   };
 
-  const uploadFile = async () => {
-    if (!fileUpload) {
-      return;
-    }
-    const filesFolderRef = ref(storage, `projectFiles/${fileUpload.name}`);
-    try {
-      await uploadBytes(filesFolderRef, fileUpload);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   return (
     <div className="App">
       Firebase
@@ -140,10 +127,9 @@ const App: FC = () => {
       ))}
       <hr />
       <div>
-        <input type="file" onChange={(e: any) => setFileUpload(e.target.files[0])} />
-        <button onClick={uploadFile}>Upload File</button>
+        <input type="file" />
+        <button>Upload File</button>
       </div>
-      <h1>{storage.app.options.storageBucket}</h1>
     </div>
   );
 };

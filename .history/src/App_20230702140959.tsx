@@ -1,9 +1,8 @@
 import { FC, useEffect, useState } from 'react';
 import './App.css';
 import Auth from './components/Auth';
-import { db, auth, storage } from './config/firebase';
-import { getDocs, collection, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes } from 'firebase/storage';
+import { db } from './config/firebase';
+import { getDocs, collection, addDoc } from 'firebase/firestore';
 
 interface IMovie {
   id: string;
@@ -19,10 +18,6 @@ const App: FC = () => {
   const [title, setTitle] = useState<string>('');
   const [releaseDate, setReleaseDate] = useState<number>(0);
   const [recievedAnOscar, setRecievedAnOscar] = useState<boolean>(true);
-  const [updatedTitle, setUpdatedTitle] = useState<string>('');
-
-  //fileupload
-  const [fileUpload, setFileUpload] = useState<any>(null);
 
   const moviesCollectionRef = collection(db, 'movies');
 
@@ -54,52 +49,11 @@ const App: FC = () => {
   const handleRecievedAnOscar = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRecievedAnOscar(e.target.checked);
   };
-  const handleUpdateTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUpdatedTitle(e.target.value);
-  };
 
   const submitMovie = async () => {
     try {
-      await addDoc(moviesCollectionRef, {
-        title,
-        releaseDate,
-        recievedAnOscar,
-        userId: auth.currentUser?.uid,
-      });
+      await addDoc(moviesCollectionRef, { title, releaseDate, recievedAnOscar });
       getMovieList();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const deleteMovie = async (id: string) => {
-    const movieDoc = doc(db, 'movies', id);
-    try {
-      await deleteDoc(movieDoc);
-      getMovieList();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const updateMovie = async (id: string, title: string) => {
-    const movieDoc = doc(db, 'movies', id);
-    try {
-      await updateDoc(movieDoc, { title });
-      getMovieList();
-      setUpdatedTitle('');
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const uploadFile = async () => {
-    if (!fileUpload) {
-      return;
-    }
-    const filesFolderRef = ref(storage, `projectFiles/${fileUpload.name}`);
-    try {
-      await uploadBytes(filesFolderRef, fileUpload);
     } catch (err) {
       console.log(err);
     }
@@ -130,20 +84,8 @@ const App: FC = () => {
       {movieList.map((movie) => (
         <h3 style={{ color: `${movie.recievedAnOscar ? 'gold' : 'black'}` }}>
           {movie.title}, {movie.releaseDate}
-          <button onClick={() => deleteMovie(movie.id)}>Delete movie</button>
-          <label>
-            update title
-            <input value={updatedTitle} onChange={handleUpdateTitle} placeholder="title..." />
-          </label>
-          <button onClick={() => updateMovie(movie.id, updatedTitle)}>Update title</button>
         </h3>
       ))}
-      <hr />
-      <div>
-        <input type="file" onChange={(e: any) => setFileUpload(e.target.files[0])} />
-        <button onClick={uploadFile}>Upload File</button>
-      </div>
-      <h1>{storage.app.options.storageBucket}</h1>
     </div>
   );
 };
